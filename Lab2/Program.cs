@@ -7,51 +7,83 @@ namespace Lab2
     {
         static void Main(string[] args)
         {
-
-            //IsBalanced("{ int a = new int[ ] ( ( ) ) }");
-
-            Evaluate("5 3 11 + -");
-
         }
-
-
 
         public static bool IsBalanced(string s)
         {
             Stack<char> stack = new Stack<char>();
 
-            foreach( char c in s)
+            //parse string into tokens
+
+            foreach (char c in s)
             {
-                // If opening symbol, then push onto stack
-                if ( c == '{' || c=='<' || c=='[' || c=='(' )
+                switch (c)
                 {
-                    stack.Push(c);
-                }
+                    case '{':
+                    case '(':
+                    case '<':
+                    case '[':
+                        stack.Push(c);
+                        continue;
 
-                // If closing symbol, then see if it matches the top
-                else if (c == '}' || c == '>' || c == ']' || c == ')')
-                {
-                    if( Matches(stack.Peek(), c) )
-                    {
-                        stack.Pop();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                    case '}':
+                        if (stack.Count == 0)
+                        {
+                            return false;
+                        }
 
-                // If any other character, then continue/ignore it.
-                else
-                {
-                    //continue;
+                        if (stack.Peek() == '{')
+                        {
+                            stack.Pop();
+                        }
+
+                        continue;
+
+                    case ']':
+                        if (stack.Count == 0)
+                        {
+                            return false;
+                        }
+
+                        if (stack.Peek() == '[')
+                        {
+                            stack.Pop();
+                        }
+
+                        continue;
+
+                    case '>':
+                        if (stack.Count == 0)
+                        {
+                            return false;
+                        }
+
+                        if (stack.Peek() == '<')
+                        {
+                            stack.Pop();
+                        }
+
+                        continue;
+
+                    case ')':
+                        if (stack.Count == 0)
+                        {
+                            return false;
+                        }
+
+                        if (stack.Peek() == '(')
+                        {
+                            stack.Pop();
+                        }
+
+                        continue;
+
+                    default:
+                        continue;
                 }
             }
 
-            // If stack is empty, return true
-            // else return false
-
-            if( stack.Count == 0)
+            if (stack.Count == 0)
             {
                 return true;
             }
@@ -59,44 +91,72 @@ namespace Lab2
             return false;
         }
 
-        private static bool Matches(char open, char close)
-        {
-            // do the matching
-
-            return true;
-        }
-
-        // Evaluate("5 3 11 + -")	// returns -9
-        // 2.4 3.8 / 2.321 +
-        
         public static double? Evaluate(string s)
         {
-            // parse into tokens (strings)
+            Stack<double> stack = new Stack<double>();
 
             string[] tokens = s.Split();
 
-            Stack<double> stack = new Stack<double>();
+            foreach (string t in tokens)
+            {
+                try
+                {
+                    double num = Convert.ToDouble(t);
 
-            // foreach token
-                // If token is an integer
-                // Push on stack
+                    stack.Push(num);
+                }
+                catch (FormatException)
+                {
+                    if (stack.Count < 2)
+                    {
+                        return null;
+                    }
+                    switch (t)
+                    {
+                        case "+":
+                            var num2 = stack.Pop();
+                            var num1 = stack.Pop();
 
-                // If token is an operator
-                    // Pop twice and save both values
-                    // (if you can't pop twice, then return null)
-                    // Perform operation on 2 values (in the correct order)
-                    // Push the result on to stack
+                            stack.Push(num1 + num2);
 
+                            continue;
 
-            if( stack.Count != 1)
+                        case "*":
+                            var num4 = stack.Pop();
+                            var num3 = stack.Pop();
+
+                            stack.Push(num3 * num4);
+
+                            continue;
+
+                        case "-":
+                            var num6 = stack.Pop();
+                            var num5 = stack.Pop();
+
+                            stack.Push(num5 - num6);
+
+                            continue;
+
+                        case "/":
+                            var num8 = stack.Pop();
+                            var num7 = stack.Pop();
+
+                            stack.Push(num7 / num8);
+
+                            continue;
+
+                        default:
+                            return null;
+                    }
+                }
+            }
+
+            if (stack.Count != 1)
             {
                 return null;
             }
 
             return stack.Pop();
         }
-
-
-
     }
 }
